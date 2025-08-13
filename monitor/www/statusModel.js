@@ -1,6 +1,7 @@
 $(document).ready(function () {
     $('#statusTable').DataTable({
-        "paging": false, "info": false,
+        "paging": false,
+        "info": false,
         "columnDefs": [
             { "className": "dt-center", "targets": "_all" }
         ],
@@ -13,13 +14,12 @@ $(document).ready(function () {
         data: function data() {
             return { clients: clients, componentKey: 0 };
         },
-        methods:
-        {
+        methods: {
             forceRerender() {
                 this.componentKey += 1;
             }
         }
-    })
+    });
 
     let table = new Vue({
         el: '#statusTable',
@@ -29,8 +29,7 @@ $(document).ready(function () {
                 componentKey: 0,
             };
         },
-        methods:
-        {
+        methods: {
             forceRerender() {
                 this.componentKey += 1;
             }
@@ -47,7 +46,13 @@ $(document).ready(function () {
 
     socket.on("heartbeat", (heartbeat) => {
         console.log(JSON.stringify(heartbeat));
-        table.clients = heartbeat.servers;
-        statusBars.clients = heartbeat.servers;
+
+        table.clients = heartbeat.servers.map(server => ({
+            ...server,
+            rps: server.rps || 0,    
+            uptime: server.uptime || 0   
+        }));
+
+        statusBars.clients = table.clients;
     });
 });

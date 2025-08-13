@@ -37,24 +37,29 @@ class Agent {
         // 4. calculate the cpu load percentage as (usage_usec changes since last run / time since last run in seconds) * 100
 
         try {
-            const cpuStat = await fs.readFile('/sys/fs/cgroup/cpu.stat', 'utf8');
-            const usageLine = cpuStat.split('\n').find(line => line.startsWith('usage_usec'));
-            if (!usageLine) return 0;
-            const usage = parseInt(usageLine.split(' ')[1]); // microseconds
+            const data = await fs.readFile('/sys/fs/cgroup/cpu.stat', 'utf8');
+            const line = data.split('\n').find(l => l.startsWith('usage_usec'));
+            if (!line) return 0;
 
+            const currentUsec = parseInt(line.split(' ')[1]);
             const now = Date.now();
-            const timeDeltaSec = (now - this.lastCpuCheck) / 1000;
-            const usageDeltaSec = (usage - this.lastCpuUsage) / 1e6; // to seconds
 
-            this.lastCpuCheck = now;
-            this.lastCpuUsage = usage;
-
-            if (timeDeltaSec > 0) {
-                return Math.min(100, Math.round((usageDeltaSec / timeDeltaSec) * 100));
+            if (!this.lastCpuUsage || !this.lastCpuCheck) {
+                this.lastCpuUsage = currentUsec;
+                this.lastCpuCheck = now;
+                return 0;
             }
-            return 0;
-        } catch (err) {
-            console.error('CPU load error:', err);
+
+            const usageSec = (currentUsec - this.lastCpuUsage) / 1e6;
+            const deltaSec = (now - this.lastCpuCheck) / 1000;
+            this.lastCpuUsage = currentUsec;
+            this.lastCpuCheck = now;
+
+            const cores = require('os').cpus().length;
+            console.log("cores: ", cores);
+            return Math.min(100, Math.round((usageSec / deltaSec) * 100 / cores));
+        } catch (e) {
+            console.error('CPU load error:', e);
             return 0;
         }
     }
@@ -72,7 +77,6 @@ class Agent {
     }
 
 }
-
 
 const agent = new Agent();
 const httpServer = createServer();

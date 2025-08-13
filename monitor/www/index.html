@@ -23,16 +23,13 @@
     <script src=//unpkg.com/vue@2.6.14></script>
     <script src=//unpkg.com/vuetrend></script>
 
-
 </head>
 
 <body>
 
-
     <h1>Monitor Dashboard</h1>
 
     <h3>Servers</h3>
-
     <div id="statusColors" :key="componentKey">
         <div v-for="client in clients">
             <span class="foo" v-bind:style="{backgroundColor: client.status}"></span>
@@ -41,7 +38,6 @@
     <br />
 
     <h3>Metrics</h3>
-
     <table id="statusTable" class="display" cellspacing="0" width="90%">
         <thead>
             <tr>
@@ -50,16 +46,20 @@
                 <th>Memory %</th>
                 <th>Latency (ms)</th>
                 <th>HTTP</th>
+                <th>RPS</th> 
+                <th>Uptime (s)</th>
                 <th>Trend</th>
             </tr>
         </thead>
         <tbody>
             <tr v-for="client in clients">
                 <td>{{client.name}}</td>
-                <td>{{client.cpu}}</td>
+                <td>{{client.cpuLoad}}</td>
                 <td>{{client.memoryLoad}}</td>
                 <td>{{client.latency}}</td>
                 <td>{{client.statusCode}}</td>
+                <td>{{client.rps === -1 ? 'DOWN' : client.rps}}</td>
+                <td>{{client.uptime}}</td>
                 <td>
                     <div>
                         <trend :key="client.name" :data="client.scoreTrend" :stroke-width="4"
