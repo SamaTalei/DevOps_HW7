@@ -7,11 +7,11 @@
 **Repository**: [GitHub Link](https://github.com/SamaTalei/DevOps_HW7.git)
 
 ### 🎥 Screencast of the monitoring dashboard
-[Screencast of the monitoring dashboard]()
+[Screencast of the monitoring dashboard](https://drive.google.com/file/d/1zyByW0vijfzxMMXkAG0TlxsBLp4gQFBf/view?usp=sharing)
 
 ### Setup
 
-#### For each server 1 , 2 , 3 repeat this:
+#### For each server 1 , 2 , 3 repeat this and change ports:
 ```bash
 docker run -dit --memory="1.0g" --cpus="1.0" --entrypoint sh --name server-01 --publish 4001:4001 --publish 5001:5001 node:alpine
 docker exec -it server-01 sh
@@ -32,6 +32,7 @@ npm run start-server
 ```
 #### Then inside another terminal that you have cloned https://github.com/SamaTalei/DevOps_HW7:
 ```bash
+apk add iproute2 iptables coreutils
 cd monitoring
 cd monitor
 npm install
